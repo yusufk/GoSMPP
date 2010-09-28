@@ -64,14 +64,17 @@ func (pdu *PDUCommon) writeOptional(w *bufio.Writer) (err os.Error) {
 					op.length = uint16(len(val.(string)))
 				case *reflect.BoolValue:
 					op.length = 1
-				case *reflect.Uint8Value:
-					op.length = 1
-				case *reflect.Uint16Value:
-					op.length = 2
-				case *reflect.Uint32Value:
-					op.length = 4
-				case *reflect.Uint64Value:
-					op.length = 8
+			 	case *reflect.UintValue:
+					switch t.Type().Kind() {
+						case reflect.Uint8:
+							op.length = 1
+                                                case reflect.Uint16:
+                                                        op.length = 2
+                                                case reflect.Uint32:
+                                                        op.length = 4
+                                                case reflect.Uint64:
+                                                        op.length = 8
+ 					}	
 			}
 			err = op.write(w)
 			if err != nil {
@@ -821,12 +824,15 @@ func (op *pduOptParam) write(w *bufio.Writer) (err os.Error) {
 	switch t := v.(type) {
 		case *reflect.StringValue:
 			copy(p[4:op.length], []byte(op.value.(string)))
-		case *reflect.Uint8Value:
-			p[4] = byte(op.value.(uint8))
-		case *reflect.Uint16Value:
-			copy(p[4:6], packUint(uint64(op.value.(uint16)), 2))
-		case *reflect.Uint32Value:
-			copy(p[4:8], packUint(uint64(op.value.(uint32)), 4))
+		case *reflect.UintValue:
+                	switch t.Type().Kind() {
+                        	case reflect.Uint8:
+					p[4] = byte(op.value.(uint8))
+                        	case reflect.Uint16:
+					copy(p[4:6], packUint(uint64(op.value.(uint16)), 2))
+                                case reflect.Uint32:
+					copy(p[4:8], packUint(uint64(op.value.(uint32)), 4))
+			}	
 	}
 	// Write to buffer
 	_, err = w.Write(p)

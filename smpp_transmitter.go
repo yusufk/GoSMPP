@@ -85,15 +85,18 @@ func (tx *Transmitter) SubmitSM(dest, msg string, params Params, optional ...Opt
 				case *reflect.StringValue:
 					hdr.CmdLength += uint32(len(val.(string)))
 					pdu.OptionalLen += uint32(len(val.(string)))
-				case *reflect.Uint8Value:
-					hdr.CmdLength ++
-					pdu.OptionalLen ++
-				case *reflect.Uint16Value:
-					hdr.CmdLength += 2
-					pdu.OptionalLen += 2
-				case *reflect.Uint32Value:
-					hdr.CmdLength += 4
-					pdu.OptionalLen += 4
+				case *reflect.UintValue:
+                                        switch t.Type().Kind() {
+                                                case reflect.Uint8:
+                                       			hdr.CmdLength ++
+                                        		pdu.OptionalLen ++
+                                                case reflect.Uint16:
+		                                        hdr.CmdLength += 2
+               			                         pdu.OptionalLen += 2
+                                                case reflect.Uint32:
+							hdr.CmdLength += 4
+							pdu.OptionalLen += 4
+					}
 			}
 			// Add 4 bytes for optional param header
 			hdr.CmdLength += 4
@@ -205,15 +208,18 @@ func (tx *Transmitter) SubmitMulti(destNum, destList []string, msg string, param
 				case *reflect.StringValue:
 					hdr.CmdLength += uint32(len(val.(string)))
 					pdu.OptionalLen += uint32(len(val.(string)))
-				case *reflect.Uint8Value:
-					hdr.CmdLength ++
-					pdu.OptionalLen ++
-				case *reflect.Uint16Value:
-					hdr.CmdLength += 2
-					pdu.OptionalLen += 2
-				case *reflect.Uint32Value:
-					hdr.CmdLength += 4
-					pdu.OptionalLen += 4
+ 				case *reflect.UintValue:		
+					switch t.Type().Kind() {
+                                                case reflect.Uint8:
+                                                        hdr.CmdLength ++
+                                                        pdu.OptionalLen ++
+                                                case reflect.Uint16:
+                                                        hdr.CmdLength += 2
+                                                         pdu.OptionalLen += 2
+                                                case reflect.Uint32:
+                                                        hdr.CmdLength += 4
+                                                        pdu.OptionalLen += 4
+					}
 			}
 			// Add 4 bytes for optional param header
 			hdr.CmdLength += 4
